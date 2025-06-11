@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "App",
+      "request": "launch",
+      "mainClass": "com.guardlog.App",
+      "projectName": "GuardLog_cc67a522"
+    },
+    {
+      "type": "java",
+      "name": "Run GuardLog",
+      "request": "launch",
+      "mainClass": "com.guardlog.App",
+      "vmArgs": "--module-path D:/javafx-sdk-21/lib --add-modules javafx.controls,javafx.fxml",
+      "projectName": "GuardLog"
+    }
+  ]
+}

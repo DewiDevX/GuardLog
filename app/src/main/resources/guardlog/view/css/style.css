@@ -1,0 +1,102 @@
+/* GUARDLOG/app/src/main/resources/guardlog/view/css/style.css */
+
+/* General background for VBox/HBox parents */
+.root {
+    -fx-background-color: #f0f2f5; /* Light gray background */
+}
+
+/* Common button styling */
+.button {
+    -fx-background-color: #007bff; /* Blue */
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 15px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.button:hover {
+    -fx-background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Specific button for primary actions (e.g., Login, Save) */
+.button-primary {
+    -fx-background-color: #28a745; /* Green */
+}
+
+.button-primary:hover {
+    -fx-background-color: #218838; /* Darker green on hover */
+}
+
+/* Labels for titles */
+.label-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+}
+
+.label-subtitle {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #555;
+}
+
+/* TextFields and PasswordFields */
+.text-field, .password-field, .text-area {
+    -fx-background-color: white;
+    -fx-border-color: #ced4da;
+    -fx-border-radius: 5px;
+    -fx-padding: 8px;
+    -fx-font-size: 14px;
+}
+
+/* TableView styling */
+.table-view {
+    -fx-base: #f8f9fa; /* Lighter background for table */
+    -fx-control-inner-background: #ffffff;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dee2e6;
+    -fx-border-radius: 5px;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #e9ecef; /* Header background */
+    -fx-border-radius: 5px;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #000000; /* Header text color */
+    -fx-font-weight: bold;
+}
+
+.table-view .table-cell {
+    -fx-text-fill: #000000; /* Cell text color */
+    -fx-padding: 8px;
+}
+
+/* ComboBox */
+.combo-box {
+    -fx-background-color: white;
+    -fx-border-color: #ced4da;
+    -fx-border-radius: 5px;
+    -fx-font-size: 14px;
+}
+
+/* DatePicker */
+.date-picker {
+    -fx-background-color: white;
+    -fx-border-color: #ced4da;
+    -fx-border-radius: 5px;
+    -fx-font-size: 14px;
+}
+
+/* Separators */
+.separator {
+    -fx-background-color: #e0e0e0;
+}
+
+/* Styling for specific labels (e.g., officer name on dashboard) */
+#officerNameLabel {
+    -fx-font-weight: bold;
+    -fx-text-fill: #007bff;
+}
