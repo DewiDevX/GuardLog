@@ -81,8 +81,9 @@ GuardLog/
 
 ## 👨‍💻 Developer
 
-- **Nama**: Aditya Hisbulah Bahri
-            Dewi Astuti Muchtar
+- **Nama**
+- Aditya Hisbulah Bahri
+- Dewi Astuti Muchtar
 - **Kampus**: Universitas Hasanuddin
 - **Program Studi**: Sistem Informasi
 
