@@ -102,4 +102,4 @@ Proyek ini berlisensi [MIT License](LICENSE), bebas digunakan dan dimodifikasi u
 Untuk kolaborasi, masukan, atau pertanyaan teknis:
 
 📧 Email: dewiastutimuchtar9@email.com  
-🐙 GitHub: [@username](https://github.com/DewiDevX)
+🐙 GitHub: [DewiDevX](https://github.com/DewiDevX)
