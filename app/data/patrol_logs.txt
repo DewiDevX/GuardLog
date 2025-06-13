@@ -1,0 +1,2 @@
+2025-06-13T19:01:44.7486945,Gerbang Utama,Semua aman\, tidak ada kejadian.,Admin
+2025-06-13T20:01:44.7506819,Perimeter Timur,Terdapat suara anjing menggonggong.,Admin

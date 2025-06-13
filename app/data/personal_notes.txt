@@ -1,0 +1,2 @@
+Periksa Lampu,Lampu di koridor barat berkedip\, perlu diperbaiki.,To-Do,2025-06-13T21:01:44.7705475,Admin
+Pesan untuk Shift Malam,Pastikan semua pintu terkunci sebelum shift berakhir.,Serah Terima,2025-06-13T21:01:44.7715407,Admin

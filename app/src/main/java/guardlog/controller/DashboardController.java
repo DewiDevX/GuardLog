@@ -19,21 +19,15 @@ import java.util.ResourceBundle;
 public class DashboardController implements Initializable {
 
     @FXML
-    private Label officerNameLabel; // Label to display the active officer's name
+    private Label officerNameLabel;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Display the active officer's name when the dashboard is loaded
         String officerName = UserSession.getInstance().getActiveOfficerName();
         officerNameLabel.setText("Petugas: " + (officerName != null ? officerName : "Tidak Diketahui"));
     }
 
-    // --- Navigation Methods ---
-
-    @FXML
-    private void handleVisitorManagement(ActionEvent event) {
-        loadScene("/guardlog/view/fxml/VisitorView.fxml", "GuardLog - Manajemen Pengunjung", event);
-    }
+    // Hapus handleVisitorManagement karena modul pengunjung dihapus
 
     @FXML
     private void handleIncidentReporting(ActionEvent event) {
@@ -62,27 +56,31 @@ public class DashboardController implements Initializable {
 
     @FXML
     private void handleLogout(ActionEvent event) {
-        UserSession.getInstance().clearSession(); // Clear session on logout
+        UserSession.getInstance().clearSession();
         loadScene("/guardlog/view/fxml/LoginView.fxml", "GuardLog - Login", event);
     }
 
-    /**
-     * Helper method to load a new scene.
-     * @param fxmlPath The path to the FXML file (e.g., "/guardlog/view/fxml/SomeView.fxml").
-     * @param title The title for the new window.
-     * @param event The ActionEvent that triggered this navigation (used to get the current Stage).
-     */
     private void loadScene(String fxmlPath, String title, ActionEvent event) {
         try {
             Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(fxmlPath)));
+            Scene newScene = new Scene(root);
+
+            // --- Menerapkan CSS ke Scene baru ---
+            URL cssUrl = getClass().getResource("/guardlog/view/css/style.css");
+            if (cssUrl != null) {
+                newScene.getStylesheets().add(cssUrl.toExternalForm());
+            } else {
+                System.err.println("ERROR: File CSS tidak ditemukan untuk FXML: " + fxmlPath + "! Jalur: /guardlog/view/css/style.css");
+            }
+            // ------------------------------------
+
             Stage window = (Stage)((javafx.scene.Node)event.getSource()).getScene().getWindow();
-            window.setScene(new Scene(root));
+            window.setScene(newScene);
             window.setTitle(title);
             window.show();
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Failed to load FXML: " + fxmlPath);
-            // Optionally show an alert to the user
+            System.err.println("Gagal memuat FXML: " + fxmlPath);
         }
     }
 }

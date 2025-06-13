@@ -1,0 +1,2 @@
+INC-1749819704655,Keamanan,2025-06-13T18:01:44.6557833,Gerbang Utama,Pagar rusak,Admin,Pending
+INC-1749819704675,Kesehatan,2025-06-13T20:01:44.6746559,Pos Jaga,Petugas pusing,Admin,Pending

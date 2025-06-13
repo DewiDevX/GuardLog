@@ -1,12 +1,9 @@
 // GUARDLOG/app/src/main/java/guardlog/controller/DailyReportController.java
 package guardlog.controller;
 
-import guardlog.model.Incident;
-import guardlog.model.PatrolLogEntry;
+import guardlog.model.IncidentManager;
+import guardlog.model.PatrolLogManager;
 import guardlog.model.UserSession;
-import guardlog.model.Visitor;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,10 +19,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
-import java.time.LocalDate;         
-import java.time.LocalDateTime;     
-import java.time.LocalTime;         
-import java.time.format.DateTimeFormatter; 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
@@ -33,30 +29,12 @@ public class DailyReportController implements Initializable {
 
     @FXML private TextArea reportTextArea;
 
-    // Dummy data for demonstration. In a real app, these would come from a database/service.
-    private ObservableList<Visitor> dummyVisitors;
-    private ObservableList<Incident> dummyIncidents;
-    private ObservableList<PatrolLogEntry> dummyPatrolLogs;
+    // Tambahkan formatter sebagai field kelas untuk penggunaan yang konsisten
+    private final DateTimeFormatter timeOnlyFormatter = DateTimeFormatter.ofPattern("HH:mm"); // <--- PERUBAHAN DI SINI
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Initialize dummy data (replace with actual data loading)
-        dummyVisitors = FXCollections.observableArrayList(
-            new Visitor("Budi Santoso", "Meeting", "Admin", LocalDateTime.now().minusHours(2)),
-            new Visitor("Siti Aminah", "Kunjungan", "Admin", LocalDateTime.now().minusHours(1))
-        );
-        dummyVisitors.get(0).setTimeOut(LocalDateTime.now().minusHours(1).minusMinutes(30)); // Checkout Budi
-
-        dummyIncidents = FXCollections.observableArrayList(
-            new Incident("Keamanan", LocalDateTime.now().minusHours(3), "Gerbang Utama", "Pagar rusak", "Admin"),
-            new Incident("Kesehatan", LocalDateTime.now().minusHours(1), "Pos Jaga", "Petugas pusing", "Admin")
-        );
-        dummyIncidents.get(0).setStatus("Resolved"); // Update status
-
-        dummyPatrolLogs = FXCollections.observableArrayList(
-            new PatrolLogEntry(LocalDateTime.now().minusHours(4), "Gerbang Utama", "Semua aman.", "Admin"),
-            new PatrolLogEntry(LocalDateTime.now().minusHours(2), "Perimeter Timur", "Anjing menggonggong.", "Admin")
-        );
+        // Data akan diambil saat tombol generate report diklik
     }
 
     @FXML
@@ -71,59 +49,41 @@ public class DailyReportController implements Initializable {
         reportBuilder.append("========================================\n");
         reportBuilder.append("       LAPORAN HARIAN KEAMANAN\n");
         reportBuilder.append("========================================\n");
-        reportBuilder.append("Tanggal: ").append(LocalDate.now().format(DateTimeFormatter.ofPattern("dd MMMM yyyy"))).append("\n");
+        reportBuilder.append("Tanggal: ").append(LocalDate.now().format(DateTimeFormatter.ofPattern("dd MMMM YY"))).append("\n");
         reportBuilder.append("Petugas Pelapor: ").append(officerName).append("\n");
         reportBuilder.append("----------------------------------------\n\n");
-
-        // 1. Visitor Activity
-        reportBuilder.append("--- Aktivitas Pengunjung ---\n");
-        if (dummyVisitors.isEmpty()) {
-            reportBuilder.append("Tidak ada pengunjung yang dicatat hari ini.\n");
-        } else {
-            for (Visitor visitor : dummyVisitors) {
-                reportBuilder.append(String.format("  - %s (%s)\n    Masuk: %s\n    Keluar: %s\n    Dicatat oleh: %s\n",
-                        visitor.getName(),
-                        visitor.getPurpose(),
-                        visitor.getTimeIn().format(DateTimeFormatter.ofPattern("HH:mm")),
-                        visitor.getTimeOut() != null ? visitor.getTimeOut().format(DateTimeFormatter.ofPattern("HH:mm")) : "Belum Checkout",
-                        visitor.getOfficerName()
-                ));
-            }
-        }
-        reportBuilder.append("\n");
-
-        // 2. Incident Reports
         reportBuilder.append("--- Laporan Insiden ---\n");
-        if (dummyIncidents.isEmpty()) {
+        if (IncidentManager.getInstance().getIncidents().isEmpty()) {
             reportBuilder.append("Tidak ada insiden yang dicatat hari ini.\n");
         } else {
-            for (Incident incident : dummyIncidents) {
+            IncidentManager.getInstance().getIncidents().forEach(incident -> {
                 reportBuilder.append(String.format("  - ID: %s, Kategori: %s\n    Waktu: %s, Lokasi: %s\n    Deskripsi: %s\n    Pelapor: %s, Status: %s\n",
                         incident.getId(),
                         incident.getCategory(),
-                        incident.getDateTime().format(DateTimeFormatter.ofPattern("HH:mm")),
+                        incident.getDateTime().format(timeOnlyFormatter), // <--- GUNAKAN timeOnlyFormatter DI SINI
                         incident.getLocation(),
-                        incident.getDescription().length() > 50 ? incident.getDescription().substring(0, 50) + "..." : incident.getDescription(), // Truncate long descriptions
+                        incident.getDescription().length() > 50 ? incident.getDescription().substring(0, 50) + "..." : incident.getDescription(),
                         incident.getReportedByOfficer(),
                         incident.getStatus()
                 ));
-            }
+            });
         }
         reportBuilder.append("\n");
 
-        // 3. Patrol Log Summary
         reportBuilder.append("--- Ringkasan Log Patroli ---\n");
-        if (dummyPatrolLogs.isEmpty()) {
+        if (PatrolLogManager.getInstance().getPatrolEntries().isEmpty()) {
             reportBuilder.append("Tidak ada catatan patroli hari ini.\n");
         } else {
-            for (PatrolLogEntry entry : dummyPatrolLogs) {
+            PatrolLogManager.getInstance().getPatrolEntries().forEach(entry -> {
+                // --- PERUBAHAN DI SINI ---
                 reportBuilder.append(String.format("  - Waktu: %s, Area: %s\n    Catatan: %s\n    Dicatat oleh: %s\n",
-                        entry.getTimestamp().format(DateTimeFormatter.ofPattern("HH:mm")),
+                        entry.getTimestamp().format(timeOnlyFormatter), // <--- GUNAKAN timeOnlyFormatter DI SINI (LINE 85)
                         entry.getArea(),
                         entry.getNotes().length() > 50 ? entry.getNotes().substring(0, 50) + "..." : entry.getNotes(),
                         entry.getRecordedByOfficer()
                 ));
-            }
+                // --- AKHIR PERUBAHAN ---
+            });
         }
         reportBuilder.append("\n");
 
@@ -175,13 +135,22 @@ public class DailyReportController implements Initializable {
     private void loadScene(String fxmlPath, String title, ActionEvent event) {
         try {
             Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(fxmlPath)));
+            Scene newScene = new Scene(root);
+
+            URL cssUrl = getClass().getResource("/guardlog/view/css/style.css");
+            if (cssUrl != null) {
+                newScene.getStylesheets().add(cssUrl.toExternalForm());
+            } else {
+                System.err.println("ERROR: File CSS tidak ditemukan untuk FXML: " + fxmlPath + "! Jalur: /guardlog/view/css/style.css");
+            }
+
             Stage window = (Stage)((javafx.scene.Node)event.getSource()).getScene().getWindow();
-            window.setScene(new Scene(root));
+            window.setScene(newScene);
             window.setTitle(title);
             window.show();
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Failed to load FXML: " + fxmlPath);
+            System.err.println("Gagal memuat FXML: " + fxmlPath);
         }
     }
 }
