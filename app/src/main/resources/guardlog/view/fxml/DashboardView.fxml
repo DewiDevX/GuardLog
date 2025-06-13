@@ -38,7 +38,6 @@
                     <Font size="16.0" />
                 </font>
             </Label>
-            <Button onAction="#handleVisitorManagement" prefWidth="200.0" text="Manajemen Pengunjung" />
             <Button onAction="#handleIncidentReporting" prefWidth="200.0" text="Pelaporan Insiden" />
             <Button onAction="#handlePatrolLog" prefWidth="200.0" text="Log Patroli" />
             <Button onAction="#handleEmergencyContacts" prefWidth="200.0" text="Kontak Darurat" />
@@ -53,14 +52,6 @@
                 </font>
             </Label>
             <Label text="*Fitur ini akan menampilkan ringkasan data penting secara real-time. Untuk saat ini, gunakan menu navigasi di samping." wrapText="true" />
-            <Separator />
-            <Label text="Visitors Hari Ini: (Data dummy)" style="-fx-font-weight: bold;">
-                <font>
-                    <Font size="16.0" />
-                </font>
-            </Label>
-            <Label text="- Pengunjung Masuk: 5" />
-            <Label text="- Pengunjung Checkout: 3" />
             <Separator />
             <Label text="Incident Report Pending: (Data dummy)" style="-fx-font-weight: bold;">
                 <font>

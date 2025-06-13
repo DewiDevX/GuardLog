@@ -13,7 +13,8 @@ import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 
 import java.io.IOException;
-import java.util.Objects; // Added for Objects.requireNonNull()
+import java.net.URL;
+import java.util.Objects;
 
 public class LoginController {
 
@@ -24,7 +25,7 @@ public class LoginController {
     private PasswordField passwordField;
 
     @FXML
-    private TextField officerNameField; // Field for the officer's full name
+    private TextField officerNameField;
 
     @FXML
     private void handleLoginButtonAction(ActionEvent event) {
@@ -32,42 +33,39 @@ public class LoginController {
         String password = passwordField.getText();
         String officerName = officerNameField.getText();
 
-        // Simple validation for a single-user application
         if ("admin".equals(username) && "secure".equals(password) && !officerName.trim().isEmpty()) {
-            // Login successful
-            UserSession.getInstance().setActiveOfficerName(officerName.trim()); // Store officer's name
+            UserSession.getInstance().setActiveOfficerName(officerName.trim());
 
-            // Navigate to Dashboard
             try {
-                // Path to DashboardView.fxml, relative to classpath root
                 Parent dashboardParent = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/guardlog/view/fxml/DashboardView.fxml")));
                 Scene dashboardScene = new Scene(dashboardParent);
 
-                // Get the current window (Stage) from the clicked button's scene
+                // --- Menerapkan CSS ke Scene Dashboard ---
+                URL cssUrl = getClass().getResource("/guardlog/view/css/style.css");
+                if (cssUrl != null) {
+                    dashboardScene.getStylesheets().add(cssUrl.toExternalForm());
+                } else {
+                    System.err.println("ERROR: File CSS tidak ditemukan untuk DashboardView! Jalur: /guardlog/view/css/style.css");
+                }
+                // ------------------------------------------
+
                 Stage window = (Stage)((javafx.scene.Node)event.getSource()).getScene().getWindow();
                 window.setScene(dashboardScene);
                 window.setTitle("GuardLog - Security Dashboard");
                 window.show();
             } catch (IOException e) {
                 e.printStackTrace();
-                showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to load dashboard. Please try again or contact support.");
+                showAlert(Alert.AlertType.ERROR, "Navigation Error", "Gagal memuat dashboard. Silakan coba lagi atau hubungi dukungan.");
             }
         } else {
-            // Login failed
-            showAlert(Alert.AlertType.ERROR, "Login Failed", "Username, password, or officer's name is invalid!");
+            showAlert(Alert.AlertType.ERROR, "Login Gagal", "Username, password, atau nama petugas tidak valid!");
         }
     }
 
-    /**
-     * Helper method to display an alert dialog.
-     * @param type The type of alert (ERROR, INFORMATION, WARNING, etc.).
-     * @param title The title of the alert dialog.
-     * @param message The content text of the alert dialog.
-     */
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
-        alert.setHeaderText(null); // No header text
+        alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
     }

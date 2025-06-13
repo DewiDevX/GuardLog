@@ -1,0 +1,5 @@
+Kepala Keamanan,Supervisor,0812-3456-7890
+Pemadam Kebakaran,Darurat,113
+Polisi,Darurat,110
+Ambulans,Darurat,118
+Teknisi Gedung,Teknisi,0876-5432-1098

@@ -2,9 +2,9 @@
 package guardlog.controller;
 
 import guardlog.model.PatrolLogEntry;
+import guardlog.model.PatrolLogManager;
 import guardlog.model.UserSession;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.collections.FXCollections; // Masih diperlukan untuk ComboBox
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -27,12 +27,11 @@ public class PatrolLogController implements Initializable {
     @FXML private ComboBox<String> areaComboBox;
     @FXML private TextArea notesArea;
     @FXML private TableView<PatrolLogEntry> patrolLogTable;
-    @FXML private TableColumn<PatrolLogEntry, String> timestampColumn;
+    @FXML private TableColumn<PatrolLogEntry, LocalDateTime> timestampColumn; // Tipe diubah ke LocalDateTime
     @FXML private TableColumn<PatrolLogEntry, String> areaColumn;
     @FXML private TableColumn<PatrolLogEntry, String> notesColumn;
     @FXML private TableColumn<PatrolLogEntry, String> officerColumn;
 
-    private ObservableList<PatrolLogEntry> patrolEntries = FXCollections.observableArrayList();
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 
@@ -47,25 +46,20 @@ public class PatrolLogController implements Initializable {
         notesColumn.setCellValueFactory(new PropertyValueFactory<>("notes"));
         officerColumn.setCellValueFactory(new PropertyValueFactory<>("recordedByOfficer"));
 
-        // Format LocalDateTime for display
-        timestampColumn.setCellFactory(column -> new TableCell<PatrolLogEntry, String>() {
+        timestampColumn.setCellFactory(column -> new TableCell<PatrolLogEntry, LocalDateTime>() { // Tipe diubah
             @Override
-            protected void updateItem(String item, boolean empty) {
+            protected void updateItem(LocalDateTime item, boolean empty) { // Parameter `item` sekarang adalah LocalDateTime
                 super.updateItem(item, empty);
                 if (empty || item == null) {
                     setText(null);
                 } else {
-                    LocalDateTime time = ((PatrolLogEntry) getTableRow().getItem()).getTimestamp();
-                    setText(time != null ? time.format(formatter) : "");
+                    setText(item.format(formatter)); // Langsung format `item` (LocalDateTime)
                 }
             }
         });
 
-        patrolLogTable.setItems(patrolEntries);
-
-        // TODO: Load existing patrol log entries
-        patrolEntries.add(new PatrolLogEntry(LocalDateTime.now().minusHours(2), "Gerbang Utama", "Semua aman, tidak ada kejadian.", "Admin"));
-        patrolEntries.add(new PatrolLogEntry(LocalDateTime.now().minusHours(1), "Perimeter Timur", "Terdapat suara anjing menggonggong.", "Admin"));
+        patrolLogTable.setItems(PatrolLogManager.getInstance().getPatrolEntries());
+        System.out.println("PatrolLogController: TableView diatur. Jumlah item di TableView: " + patrolLogTable.getItems().size());
     }
 
     @FXML
@@ -84,13 +78,11 @@ public class PatrolLogController implements Initializable {
         }
 
         PatrolLogEntry newEntry = new PatrolLogEntry(LocalDateTime.now(), area, notes, officer);
-        patrolEntries.add(newEntry);
+        PatrolLogManager.getInstance().addPatrolEntry(newEntry);
 
         areaComboBox.getSelectionModel().clearSelection();
         notesArea.clear();
         showAlert(Alert.AlertType.INFORMATION, "Patroli Dicatat", "Catatan patroli di " + area + " berhasil ditambahkan.");
-
-        // TODO: Save to database
     }
 
     @FXML
@@ -109,13 +101,22 @@ public class PatrolLogController implements Initializable {
     private void loadScene(String fxmlPath, String title, ActionEvent event) {
         try {
             Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(fxmlPath)));
+            Scene newScene = new Scene(root);
+
+            URL cssUrl = getClass().getResource("/guardlog/view/css/style.css");
+            if (cssUrl != null) {
+                newScene.getStylesheets().add(cssUrl.toExternalForm());
+            } else {
+                System.err.println("ERROR: File CSS tidak ditemukan untuk FXML: " + fxmlPath + "! Jalur: /guardlog/view/css/style.css");
+            }
+
             Stage window = (Stage)((javafx.scene.Node)event.getSource()).getScene().getWindow();
-            window.setScene(new Scene(root));
+            window.setScene(newScene);
             window.setTitle(title);
             window.show();
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Failed to load FXML: " + fxmlPath);
+            System.err.println("Gagal memuat FXML: " + fxmlPath);
         }
     }
 }

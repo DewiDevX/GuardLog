@@ -2,9 +2,9 @@
 package guardlog.controller;
 
 import guardlog.model.PersonalNote;
+import guardlog.model.PersonalNoteManager;
 import guardlog.model.UserSession;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.collections.FXCollections; // Masih diperlukan untuk ComboBox
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -30,41 +30,38 @@ public class PersonalNotesController implements Initializable {
     @FXML private TableView<PersonalNote> notesTable;
     @FXML private TableColumn<PersonalNote, String> titleColumn;
     @FXML private TableColumn<PersonalNote, String> categoryColumn;
-    @FXML private TableColumn<PersonalNote, String> timestampColumn;
+    @FXML private TableColumn<PersonalNote, LocalDateTime> timestampColumn; // Tipe diubah ke LocalDateTime
     @FXML private TableColumn<PersonalNote, String> createdByColumn;
-    @FXML private TextArea noteDetailView; // To show full content of selected note
+    @FXML private TextArea noteDetailView;
 
-    private ObservableList<PersonalNote> personalNotes = FXCollections.observableArrayList();
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         noteCategoryComboBox.setItems(FXCollections.observableArrayList(
-                "Umum", "To-Do", "Pengingat", "Serah Terima" // General, To-Do, Reminder, Handover
+                "Umum", "To-Do", "Pengingat", "Serah Terima"
         ));
 
         titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
-        timestampColumn.setCellValueFactory(new PropertyValueFactory<>("timestamp"));
         createdByColumn.setCellValueFactory(new PropertyValueFactory<>("createdByOfficer"));
-
-        // Format LocalDateTime for display
-        timestampColumn.setCellFactory(column -> new TableCell<PersonalNote, String>() {
+        
+        timestampColumn.setCellValueFactory(new PropertyValueFactory<>("timestamp"));
+        timestampColumn.setCellFactory(column -> new TableCell<PersonalNote, LocalDateTime>() { // Tipe diubah
             @Override
-            protected void updateItem(String item, boolean empty) {
+            protected void updateItem(LocalDateTime item, boolean empty) { // Parameter `item` sekarang adalah LocalDateTime
                 super.updateItem(item, empty);
                 if (empty || item == null) {
                     setText(null);
                 } else {
-                    LocalDateTime time = ((PersonalNote) getTableRow().getItem()).getTimestamp();
-                    setText(time != null ? time.format(formatter) : "");
+                    setText(item.format(formatter)); // Langsung format `item` (LocalDateTime)
                 }
             }
         });
 
-        notesTable.setItems(personalNotes);
+        notesTable.setItems(PersonalNoteManager.getInstance().getPersonalNotes());
+        System.out.println("PersonalNotesController: TableView diatur. Jumlah item di TableView: " + notesTable.getItems().size());
 
-        // Listener for table selection to display full note content
         notesTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 noteDetailView.setText(newSelection.getContent());
@@ -72,10 +69,6 @@ public class PersonalNotesController implements Initializable {
                 noteDetailView.clear();
             }
         });
-
-        // TODO: Load existing notes
-        personalNotes.add(new PersonalNote("Periksa Lampu", "Lampu di koridor barat berkedip, perlu diperbaiki.", "To-Do", "Admin"));
-        personalNotes.add(new PersonalNote("Pesan untuk Shift Malam", "Pastikan semua pintu terkunci sebelum shift berakhir.", "Serah Terima", "Admin"));
     }
 
     @FXML
@@ -95,14 +88,12 @@ public class PersonalNotesController implements Initializable {
         }
 
         PersonalNote newNote = new PersonalNote(title, content, category, createdBy);
-        personalNotes.add(newNote);
+        PersonalNoteManager.getInstance().addPersonalNote(newNote);
 
         noteTitleField.clear();
         noteContentArea.clear();
         noteCategoryComboBox.getSelectionModel().clearSelection();
         showAlert(Alert.AlertType.INFORMATION, "Catatan Berhasil", "Catatan pribadi berhasil ditambahkan.");
-
-        // TODO: Save to database
     }
 
     @FXML
@@ -116,10 +107,9 @@ public class PersonalNotesController implements Initializable {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Yakin ingin menghapus catatan ini?", ButtonType.YES, ButtonType.NO);
         confirm.showAndWait().ifPresent(response -> {
             if (response == ButtonType.YES) {
-                personalNotes.remove(selectedNote);
+                PersonalNoteManager.getInstance().getPersonalNotes().remove(selectedNote);
                 showAlert(Alert.AlertType.INFORMATION, "Catatan Dihapus", "Catatan berhasil dihapus.");
-                noteDetailView.clear(); // Clear detail view after deletion
-                // TODO: Delete from database
+                noteDetailView.clear();
             }
         });
     }
@@ -140,13 +130,22 @@ public class PersonalNotesController implements Initializable {
     private void loadScene(String fxmlPath, String title, ActionEvent event) {
         try {
             Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(fxmlPath)));
+            Scene newScene = new Scene(root);
+
+            URL cssUrl = getClass().getResource("/guardlog/view/css/style.css");
+            if (cssUrl != null) {
+                newScene.getStylesheets().add(cssUrl.toExternalForm());
+            } else {
+                System.err.println("ERROR: File CSS tidak ditemukan untuk FXML: " + fxmlPath + "! Jalur: /guardlog/view/css/style.css");
+            }
+
             Stage window = (Stage)((javafx.scene.Node)event.getSource()).getScene().getWindow();
-            window.setScene(new Scene(root));
+            window.setScene(newScene);
             window.setTitle(title);
             window.show();
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Failed to load FXML: " + fxmlPath);
+            System.err.println("Gagal memuat FXML: " + fxmlPath);
         }
     }
 }
